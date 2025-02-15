@@ -1,3 +1,9 @@
+"""
+MDP : unknown = model-free
+Control 방법 : MC Control, SARSA, Q러닝
+그 중 Q러닝
+- SARSA에서 바뀐 부분 : update_table, anneal_eps
+"""
 import random
 import numpy as np
 
