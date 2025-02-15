@@ -1,3 +1,10 @@
+"""
+MDP : unknown = model-free
+Control 방법 : MC Control, SARSA, Q러닝
+그 중 MC Control
+- Policy evaluation : 한 에피소드 경험 쌓고 경험한 데이터로 테이블 값 업데이트
+- Policy improvement : 업데이트된 테이블을 이용해 eps-greedy policy 만듦
+"""
 import random
 import numpy as np
 
@@ -70,18 +77,23 @@ class GridWorld():
 
 class QAgent():
     def __init__(self):
-        self.q_table = np.zeros((5, 7, 4)) # q벨류를 저장하는 변수. 모두 0으로 초기화. 
+        # q벨류를 저장하는 변수. 모두 0으로 초기화
+        # q_table[x,y,a] : state(x,y)에서 액션 a의 Q값
+        # update_table에서 Q값이 계속 업데이트됨
+        self.q_table = np.zeros((5, 7, 4)) # 테이블 크기 (5, 7), action의 개수 4
         self.eps = 0.9 
         self.alpha = 0.01
         
     def select_action(self, s):
         # eps-greedy로 액션을 선택
         x, y = s
-        coin = random.random()
+        coin = random.random() # 0.0 이상 1.0 미만의 실수를 무작위로 생성
         if coin < self.eps:
+            # eps 확률로 exploration
             action = random.randint(0,3)
         else:
-            action_val = self.q_table[x,y,:]
+            # 1- eps확률로 가장 높은 Q값을 가진 액션 선택(현재 Q 테이블에서 가장 좋은 액션 선택)
+            action_val = self.q_table[x,y,:] # 현재 상태 (x, y)에서 모든 액션들의 Q값을 가져와 비교
             action = np.argmax(action_val)
         return action
 
@@ -97,18 +109,21 @@ class QAgent():
 
     def anneal_eps(self):
         self.eps -= 0.03
-        self.eps = max(self.eps, 0.1)
+        self.eps = max(self.eps, 0.1) # 0.9부터 0.1까지 선형적으로 줄어듦
 
     def show_table(self):
-        # 학습이 각 위치에서 어느 액션의 q 값이 가장 높았는지 보여주는 함수
+        """
+        학습이 끝난 후, state별로 q(s,a)의 값이 가장 큰 액션 뽑아서 보여주는 함수
+        """
         q_lst = self.q_table.tolist()
+        # data : Q값을 직접 저장하는게 아니라, 각 state에서 가장 Q값이 높은 액션을 저장
         data = np.zeros((5,7))
-        for row_idx in range(len(q_lst)):
-            row = q_lst[row_idx]
-            for col_idx in range(len(row)):
-                col = row[col_idx]
-                action = np.argmax(col)
-                data[row_idx, col_idx] = action
+        for row_idx in range(len(q_lst)): # 행반복
+            row = q_lst[row_idx] # 현재 행 가져오기
+            for col_idx in range(len(row)): # 열반복
+                col = row[col_idx] # 현재 위치 (x,y)의 Q값 리스트 (4개의 액션에 대한 Q값)
+                action = np.argmax(col) # 가장 Q값이 높은 액션 선택
+                data[row_idx, col_idx] = action # 해당 액션을 data 테이블에 액션 인덱스 저장
         print(data)
       
 def main():
