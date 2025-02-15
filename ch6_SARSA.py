@@ -1,6 +1,14 @@
+"""
+MDP : unknown = model-free
+Control 방법 : MC Control, SARSA, Q러닝
+그 중 SARSA
+- Policy evaluation : TD를 이용해 q(s,a) 구하기
+- Policy improvement : 업데이트된 테이블을 이용해 eps-greedy policy 만듦
+"""
 import random
 import numpy as np
 
+# MC Control과 동일 : 환경이 바뀐게 아니라 agent의 업데이트 방식이 바뀐거임
 class GridWorld():
     def __init__(self):
         self.x=0
@@ -85,6 +93,10 @@ class QAgent():
         return action
 
     def update_table(self, transition):
+        """
+        MC Control : MC 방법을 써서, 에피소드가 끝나고 업데이트를 하므로, 리턴 계산했음
+        SARSA : TD 방법을 쓰므로, 한 스텝 나가봐서 얻은 액션별 Q값들을 이용
+        """
         s, a, r, s_prime = transition
         x,y = s
         next_x, next_y = s_prime
@@ -119,6 +131,7 @@ def main():
         while not done:
             a = agent.select_action(s)
             s_prime, r, done = env.step(a)
+            # MC Control에서는 에피소드가 끝나고 업데이트를 진행했지만, SARSA는 한 스텝이 끝나면 호출
             agent.update_table((s,a,r,s_prime))
             s = s_prime
         agent.anneal_eps()
