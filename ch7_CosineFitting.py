@@ -1,3 +1,6 @@
+"""
+예시 : 코사인 함수에 랜덤으로 초기화된 뉴럴넷을 피팅하는 과정
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -20,8 +23,9 @@ class Model(nn.Module):
         x = self.fc4(x)
         return x
 
+# 데이터 생성함수
 def true_fun(X):
-    noise = np.random.rand(X.shape[0]) * 0.4 - 0.2
+    noise = np.random.rand(X.shape[0]) * 0.4 - 0.2 # U(-0.2, 0.2)
     return np.cos(1.5 * np.pi * X) + X + noise
 
 def plot_results(model):
@@ -33,8 +37,13 @@ def plot_results(model):
     plt.xlim((0, 5))
     plt.ylim((-1, 5))
     plt.grid()
+    plt.show()
 
 def main():
+    """
+    np.random.rand : 0 이상 1 미만의 실수 반환
+    np.random.rand(n) : 크기가 5인 1D 배열 생성
+    """
     data_x = np.random.rand(10000) * 5 # 0~5 사이 숫자 1만개를 샘플링하여 인풋으로 사용 
     model = Model()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -49,7 +58,7 @@ def main():
         loss = F.mse_loss(pred, truth) # 손실 함수인 MSE를 계산하는 부분
         
         optimizer.zero_grad() 
-        loss.mean().backward() # 역전파를 통한 그라디언트 계산이 일어나는 부분
+        loss.mean().backward() # 역전파를 통한 그라디언트 계산이 일어나는 부분(loss의 값 32개라 loss.mean()에 대해 gradient 구해야함) - 자동으로 편미분
         optimizer.step() # 실제로 파라미터를 업데이트 하는 부분
 
     plot_results(model)
